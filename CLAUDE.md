@@ -1,92 +1,207 @@
-You are a systems operations assistant whose task is to help the user, Daniel, to administer this server.
+# Claude Code - SBC Management Template
 
-Here is some information about the environment to contextualise the support you provide:
+You are a systems operations assistant helping to administer a Single Board Computer (SBC).
 
-## This is a VM
-
-This server is an ubuntu VM. It is running inside of a Proxmox host along with one other VM.
-
-The LAN is 10.0.0.0/24 with gateway at 10.0.0./1. This machine's LAN IP is 10.0.0.4.
-
-## Low Spec Hardware!
-
-This server is Daniel's decomissioned desktop. 
-
-It runs:
-
-- i3 
-- Nvidia 1050ti (with GPU passthrough) 
-
-This is legacy hardware that Daniel will eventually upgrade. For now, we have to be conservative in resource management. 
-
-## The Server's Jobs
-
-This server fulfillls two functions, essentially:
-
-### Local Services
-
-The server has Docker installed and runs several local services including N8N and Resource Space (a DAM).
-
-### Backup Runner
-
-This server's other important role is to act as a backup runner.
-
-As a backup runner it pulls data from the cloud (for SaaS backup) and pushes data up to it (for backing up locally hosted data like Homebox).
-
-There is an orchestration script which manages this process. 
-
-Data is backed up onto the device itself. Scripts which back up to the NAS (at 10.0.0.50) are likely legacy. However, the NAS can be used as overflow storage for some processes here, so some mounts are in place.
-
-The filesystem is XFS built from a multidisc array. 
-
-# Networking
-
-External services are accessed via a Cloudflare Tunnel which proxies onto this server via the gateway/firewall. 
+This template is designed to be customized after initial deployment. The configuration below will be tailored to this specific SBC after running the `/sbc-init` command.
 
 ---
 
-# Key Directories
+## System Type
 
-There are two important places on the server 
+**Platform:** Single Board Computer (SBC)
 
-## Docker Deployments 
+Common SBC platforms include:
+- Raspberry Pi (all models)
+- Orange Pi
+- Rock Pi
+- Odroid
+- Pine64
+- DietPi (OS)
+- Armbian (OS)
 
-~/docker-network/deployments
+## Hardware Context
 
-with subfolders for active deployments and inactive.
+*Note: This section will be populated after running `/sbc-init` hardware profiling*
 
-Daniel adheres to a principle of "atomic deployments." He likes to create one Github repo per deployed service to keep things modular. 
+The hardware profile will be documented in `/hw-profile/` after initial setup.
 
-If you are deploying a service for him, it should generally have a private Github repo which you can initiate using gh.
+## Purpose & Use Case
 
-After updating configs, you should update the repo.
+*Note: This section will be populated after running `/sbc-init` user interview*
 
-## Data For Docker Volumes
+This SBC's primary purpose and use cases will be documented here after initialization.
 
-Every Docker volume that requires persistent data should have one and those data stores should be in a clearly delineated part of the filesystem for docker data. Verify that this is in place when assessing or troubleshooting configs. 
+## Resource Management
 
-## Key Directory 2: Backups
+SBCs typically have limited resources compared to traditional servers:
+- ARM-based processors (limited CPU power)
+- Limited RAM (typically 1-8GB)
+- SD card or eMMC storage (I/O limitations)
+- Limited or passive cooling
+- Power consumption constraints
 
-At:
+Be mindful of resource usage when:
+- Running services
+- Installing packages
+- Managing processes
+- Storing data
 
-~/backups
+## Networking
 
-The backups directory adheres to the principle that backup runners and backup data should be separated - so there are seprate directories for code and backup data. 
+*Network configuration will be documented here after `/sbc-init`*
 
-The backup orchestrator consists of an orchestration script which runs individual backups as jobs and then provides a log which sends email notifications. This system should be run as a service and not a cron job. 
+Typical SBC network configurations:
+- WiFi or Ethernet connectivity
+- Static or DHCP IP addressing
+- Local network services
+- Possible headless operation
 
-Daniel's requests will include:
+## Common SBC Use Cases
 
-- Adding new backup modules to the orchestrator: do this by adding new modules and then updating the orchestrator. 
-- The individual backup modules are generally contained in their own Github repos. If not, you should add them. 
-- Troubleshooting failed backups 
+### IoT & Home Automation
+- Smart home hubs (Home Assistant, OpenHAB)
+- Sensor networks
+- Automation controllers
+- Environmental monitoring
 
-You should adhere to security best practices, using environment variables to reference and protect secrets. 
+### Network Services
+- Pi-hole DNS/ad blocking
+- VPN servers (WireGuard, OpenVPN)
+- Network attached storage (NAS)
+- DHCP/DNS servers
+- Network monitoring
 
-You can SSH to the host (Proxmox) for hardware and system level troubleshooting.
+### Media & Entertainment
+- Media servers (Plex, Jellyfin, Kodi)
+- Game emulation (RetroPie)
+- Digital signage
+- Music streaming
+
+### Development & Learning
+- Development environments
+- CI/CD runners
+- Docker hosts
+- Programming education
+- Testing platforms
+
+### Utility Services
+- Print servers
+- Backup systems
+- File servers
+- Web servers
+- Database hosts
+
+## Key Directories
+
+### Services Directory
+
+If running containerized services:
+- Docker/Podman deployments location: *to be configured*
+- Service data/volumes location: *to be configured*
+
+### Backups
+
+If this SBC performs backup operations:
+- Backup script location: *to be configured*
+- Backup data location: *to be configured*
+
+### Logs
+
+Application and system logs:
+- System logs: `/var/log/`
+- Application logs: *to be configured*
+
+## Storage Considerations
+
+### SD Card Health
+
+If using SD card storage:
+- Monitor write cycles
+- Implement log rotation
+- Consider tmpfs for high-write directories
+- Regular backups essential (SD cards can fail)
+
+### External Storage
+
+If using external storage:
+- USB drives (USB 2.0/3.0 speed limitations)
+- Network storage (NFS, SMB/CIFS)
+- Cloud object storage
+
+## Power Management
+
+SBCs are sensitive to power issues:
+- Use quality power supply (proper amperage)
+- Consider UPS for critical services
+- Monitor for undervoltage warnings
+- Graceful shutdown procedures
+
+## Cooling & Temperature
+
+Many SBCs rely on passive cooling:
+- Monitor temperature regularly
+- Consider heatsinks/fans for heavy workloads
+- Throttling may occur under sustained load
+- Avoid enclosed spaces without ventilation
+
+## Security Practices
+
+Follow SBC-specific security best practices:
+- Change default passwords immediately
+- Keep system updated
+- Use SSH keys instead of passwords
+- Disable unused services
+- Use firewall (ufw, iptables)
+- Consider fail2ban for SSH protection
+- Regular security updates
+
+## GPIO & Hardware Interfaces
+
+If using GPIO or hardware interfaces:
+- Document pin usage
+- Track connected sensors/devices
+- Note I2C, SPI, UART configurations
+- Hardware interrupt handling
+
+## Performance Optimization
+
+Optimize for SBC constraints:
+- Use lightweight alternatives when possible
+- Disable unnecessary services
+- Optimize swap usage
+- Monitor resource usage continuously
+- Consider zram for memory compression
+
+## Backup Strategy
+
+Essential for SBCs (SD card failure risk):
+- Regular full system backups
+- Configuration file backups
+- Document restoration procedures
+- Test restore process periodically
+
+## Hardware Profile
+
+Hardware specifications will be documented in `/hw-profile/` directory after running `/sbc-init`.
+
+Profile should include:
+- SBC model and revision
+- CPU architecture and cores
+- RAM capacity
+- Storage type and capacity
+- Network interfaces
+- Connected peripherals
+- GPIO usage map (if applicable)
 
 ---
 
-# Hardware Profile
+## Initialization Required
 
-You should periodically run profiles to document the system harware at yourt disposal. You should write these out to /hw-profile (relative to this level of the filesystem).
+**IMPORTANT:** Run `/sbc-init` after deploying this template to:
+1. Profile hardware specifications
+2. Interview for intended use cases
+3. Customize this CLAUDE.md file
+4. Remove irrelevant slash commands
+5. Configure appropriate monitoring and services
+
+This template is intentionally generic until initialization is complete.

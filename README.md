@@ -1,249 +1,461 @@
-# Claude Server Manager Template
+# Claude Code - SBC Management Template
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Project-8A2BE2?style=flat&logo=anthropic)](https://github.com/anthropics/claude-code)
-[![Claude Code Projects Index](https://img.shields.io/badge/Claude%20Code-Projects%20Index-blue?style=flat)](https://github.com/danielrosehill/Claude-Code-Repos-Index)
-[![Master Index](https://img.shields.io/badge/GitHub-Master%20Index-green?style=flat&logo=github)](https://github.com/danielrosehill/Github-Master-Index)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A template repository for deploying Claude Code configuration to home servers. This template was created based on my specific server environment and use cases, so you'll want to customize it for your own setup.
+A comprehensive Claude Code template for managing Single Board Computers (SBCs) like Raspberry Pi, Orange Pi, DietPi, and similar platforms.
 
-# Important: Customization Required
+## What This Template Provides
 
-**Important:** This repository provides a pattern and starting point - it should not be deployed without customization. It was created based on my specific server environment and is intended as a model to demonstrate the approach.
+This repository offers a ready-to-deploy Claude Code environment specifically designed for SBC administration, including:
 
-Before deploying, you will need to:
-
-- **Tailor `CLAUDE.md`** - Rewrite this file entirely for your environment. Include your server's purpose, hardware specs, services, directory structures, and specific use cases. This file is what gives Claude context about YOUR system.
-- **Remove many slash commands** - The 38 included commands are specific to my setup. Review them carefully and remove those that don't apply to your environment. Keep or adapt only what's relevant.
-- **Update network details** - IP addresses (10.0.0.x), LAN structure, and services references are specific to my network.
-- **Adjust resource context** - References to low-spec hardware (i3 CPU, GTX 1050Ti) and resource conservation should be updated or removed based on your actual hardware.
-- **Modify directory paths** - Update paths for Docker deployments, backups, and other services to match your filesystem organization.
-
-This repository demonstrates the pattern of creating a comprehensive Claude Code environment for server administration. Use it as a reference and starting point, but customize it thoroughly for your own needs.
-
-# Suggested Setup Workflow
-
-## Create private repo from this template
-
-Create a private repository from this template for each machine you wish to manage.
-
-![alt text](screenshots/1.png)
-
-## Clone and sync commands
-
-Clone your copy on the remote:
-
-![alt text](screenshots/2.png)
-
-Run the propagation script to copy in the slash commands, CLAUDE.md and subagents:
-
-![alt text](screenshots/3.png)
-
-Files should copy in an instant:
-
-![alt text](screenshots/4.png)
-
-Slashes are now available:
-
-![alt text](screenshots/5.png)
+- **Smart initialization wizard** (`/sbc-init`) - Automatically profiles hardware and customizes configuration
+- **Pre-configured CLAUDE.md** - SBC-specific context and best practices
+- **38 slash commands** - System administration and monitoring commands
+- **10 specialized agents** - Complex task automation
+- **Hardware profiling** - Automatic detection and documentation
+- **Resource-aware operations** - Optimized for constrained SBC hardware
 
 ---
 
-# Purpose
+## Quick Start
 
-This template provides a comprehensive Claude Code environment optimized for server administration tasks. It includes:
+### 1. Clone the Template
 
-- Custom `CLAUDE.md` with server-specific context and instructions
-- **38 slash commands** for routine system administration tasks
-- **10 specialized agents** for complex management workflows
-- Hardware profiling directory structure
-
-### Key Features
-
-- **Low-spec hardware optimization** - Resource monitoring and performance tuning
-- **Docker deployment management** - Atomic deployment pattern with Git integration
-- **Cloudflare Tunnel integration** - External service exposure and monitoring
-- **Advanced storage management** - XFS, RAID, NAS, and cloud object storage
-- **Comprehensive monitoring** - System health, services, logs, and security
-- **Backup orchestration** - Status monitoring and troubleshooting
-- **Proxmox VM integration** - VM management from host perspective
-
-## Deployment Model
-
-Clone this repository anywhere on your managed server, then use the provided sync scripts to deploy the configuration files where Claude Code expects them.
-
-### Quick Start
+On your SBC:
 
 ```bash
-# 1. Clone the repository
-cd ~/repos/github  # or wherever you keep repositories
-git clone https://github.com/danielrosehill/Claude-Server-Manager-Template.git
-cd Claude-Server-Manager-Template
+# Clone to your preferred location
+cd ~
+git clone https://github.com/yourusername/Claude-Code-SBC-Template.git
+cd Claude-Code-SBC-Template
+```
 
-# 2. Deploy the template files
-# Choose your deployment method:
+### 2. Deploy Configuration
 
-# Option A: Sync to home directory only
+Choose your deployment method:
+
+```bash
+# Option A: Deploy to home directory only (recommended)
 ./sync-to-home.sh
 
-# Option B: Sync to both home directory AND / (requires sudo)
+# Option B: Deploy system-wide (requires sudo)
 ./sync-to-home-and-root.sh
-
-# 3. Run the setup wizard
-claude  # Start Claude Code
-# Then run: /claude-setup
 ```
 
-**Important First Step:** After deploying, run the `/claude-setup` slash command. This interactive wizard will ask you questions about your environment and help you:
-- Customize `CLAUDE.md` for your server
-- Remove irrelevant slash commands
-- Identify which agents to keep or remove
-- Update network references and paths
-- Tailor the entire configuration to your needs
+### 3. Initialize for Your SBC
 
-Don't skip this step - the template is designed to be heavily customized!
+Start Claude Code and run the initialization:
 
-### Deployment Options
-
-**Option A: `sync-to-home.sh`**
-- Deploys to `~/CLAUDE.md` and `~/.claude/`
-- No sudo required
-- Use when Claude Code will be run from your home directory
-- Creates symlink for `~/hw-profile` to the repository
-
-**Option B: `sync-to-home-and-root.sh`**
-- Deploys to both `~` and `/` (filesystem root)
-- Requires sudo for copying to `/`
-- Use when you want Claude Code available system-wide
-- Useful for running Claude Code with elevated privileges
-- Creates configuration at `/CLAUDE.md` and `/.claude/`
-- Creates `hw-profile` symlinks for both locations
-
-### How It Works
-
-The sync scripts:
-1. Copy `CLAUDE.md` and `.claude/` from the repository to the target location(s)
-2. Use `rsync --delete` to ensure `.claude/` stays in sync
-3. Create symlinks for `hw-profile/` directory back to the repository
-4. Can be run repeatedly to update the configuration after making changes
-
-This approach allows you to:
-- Keep the repository under version control in a normal location
-- Update configurations by editing the repo and re-running the sync script
-- Maintain separation between the repository and deployment locations
-- Use Git workflows (branches, PRs) for configuration management
-
-### Setup Steps
-
-1. Clone the repository to your preferred location
-2. Run the appropriate sync script based on your needs
-3. Ensure Claude Code CLI is installed and authenticated on the server
-4. Run `claude` from anywhere to use the server management commands
-
-### Updating Configuration
-
-After making changes to the repository:
 ```bash
-cd /path/to/Claude-Server-Manager-Template
-git pull  # if pulling updates
-# Make your changes...
-./sync-to-home.sh  # or sync-to-home-and-root.sh
+claude
 ```
 
-## Included Slash Commands
+Then in Claude Code:
+```
+/sbc-init
+```
 
-Use these commands by typing them in Claude Code CLI:
+The initialization wizard will:
+- ✅ Automatically profile your SBC hardware
+- ✅ Interview you about your use cases
+- ✅ Customize CLAUDE.md for your setup
+- ✅ Remove irrelevant slash commands
+- ✅ Configure appropriate monitoring
+- ✅ Create helpful documentation
 
-### System Health & Monitoring
-- `/system-health` - Check disk space, memory, CPU, and system status
-- `/uptime-stats` - Check system uptime and stability metrics
-- `/boot-time` - Analyze boot time and identify slow-starting services
-- `/check-services` - Review systemd service status and identify failures
-- `/check-logs-noteworthy` - Review logs for anything noteworthy (not just errors)
-- `/analyze-logs` - Examine system and service logs for errors
-- `/resource-alerts` - Check resource pressure and alerts (critical for low-spec hardware)
-- `/process-monitor` - Identify and analyze resource-intensive processes
+**That's it!** Your SBC management environment is ready.
 
-### Storage & Filesystem
-- `/disk-usage` - Analyze disk space consumption and identify space hogs
-- `/filesystem-health` - Check filesystem health and integrity (XFS)
-- `/cleanup-filesystem` - Identify old/leftover files for cleanup (requires approval)
-- `/xfs-check` - XFS-specific filesystem health and performance checks
-- `/raid-status` - Check multi-disk array and RAID status
+---
 
-### Docker Management
-- `/docker-health` - Comprehensive Docker health check
-- `/prune-docker` - Review running containers and identify resource usage
-- `/cleanup-docker` - Identify inactive Docker deployments for removal (requires approval)
-- `/check-docker-permissions` - Verify Docker volume and data directory permissions
-- `/deployment-list` - List and analyze all Docker deployments
-- `/volume-check` - Check Docker volume configuration and health
+## What Gets Customized
 
-### Networking & Connectivity
-- `/network-health` - Check network configuration and connectivity
-- `/check-lan-connectivity` - Verify connectivity to key LAN systems
-- `/check-nfs-mounts` - Check NFS mounts and NAS availability
-- `/tunnel-status` - Check Cloudflare tunnel status and connectivity
-- `/port-check` - Analyze port usage and listening services
+### Before `/sbc-init`
+The template contains generic SBC guidance and all available commands.
 
-### Security & Certificates
-- `/security-audit` - Conduct comprehensive security audit
-- `/firewall-check` - Assess firewall configuration and security posture
-- `/certificate-check` - Check SSL/TLS certificate status and expiration
+### After `/sbc-init`
+- **CLAUDE.md** is tailored with your actual hardware specs, network config, and use cases
+- **Hardware profile** documents exact SBC model, CPU, RAM, storage, sensors
+- **Slash commands** are pruned to only relevant ones for your setup
+- **Monitoring** is configured for your specific constraints
+- **Documentation** captures your network topology and services
 
-### Backups & Notifications
-- `/backup-status` - Verify recent backup operations and check for failures
-- `/verify-backup-clis` - Check backup CLI tools (rclone, aws, etc.)
-- `/email-test` - Test email notification system
+---
 
-### Hardware & Virtualization
-- `/gpu-status` - Check GPU passthrough and NVIDIA GPU status
-- `/proxmox-status` - Check this VM's status from Proxmox host perspective
+## Supported Platforms
 
-### System Maintenance & Updates
-- `/check-updates` - Check for available system updates and security patches
-- `/manage-autoupdate` - Review and configure automatic update settings
-- `/verify-github-cli` - Verify GitHub CLI is working correctly
+This template works with any ARM or x86-based SBC running Linux:
 
-### Documentation & Profiling
-- `/document-distro` - Document Linux distribution and system info (saves to context/)
-- `/benchmark-hardware` - Comprehensive hardware benchmarking (saves to hw-profile/)
-- `/benchmark-gpu` - GPU and compute module benchmarking (saves to hw-profile/)
-- `/check-restore-points` - Check available backup and restore points
+### Tested Platforms
+- **Raspberry Pi** (all models: Zero, 3, 4, 5)
+- **Orange Pi** (various models)
+- **Rock Pi**
+- **Odroid**
+- **Pine64**
 
-## Included Subagents
+### Compatible Operating Systems
+- Raspberry Pi OS (formerly Raspbian)
+- DietPi
+- Armbian
+- Ubuntu for ARM
+- Debian-based distributions
 
-Specialized agents for complex administrative tasks (use via Task tool):
+---
 
-### Core Operations
-- **docker-troubleshooter** - Diagnose and resolve Docker-related issues
-- **backup-manager** - Manage, troubleshoot, and optimize backup operations
-- **log-analyzer** - Examine system and application logs for issues and patterns
-- **service-monitor** - Monitor and troubleshoot systemd services
-- **security-auditor** - Perform security checks and vulnerability identification
+## What's Included
 
-### Advanced Management
-- **performance-optimizer** - Optimize resource usage for low-spec hardware
-- **deployment-manager** - Manage Docker deployments following atomic deployment principle
-- **tunnel-manager** - Manage and troubleshoot Cloudflare Tunnel connectivity
-- **storage-manager** - Manage XFS filesystems, RAID arrays, NAS, and cloud storage
+### Slash Commands (38 total)
 
-### Documentation
-- **server-documentarian** - Create comprehensive documentation for debugging operations, server configuration, bug reports, and work logs
+Commands are organized by category and will be filtered based on your setup during `/sbc-init`.
+
+#### Essential SBC Commands
+- `/system-health` - Disk, memory, CPU, temperature monitoring
+- `/resource-alerts` - Critical for resource-constrained SBCs
+- `/process-monitor` - Identify resource hogs
+- `/uptime-stats` - System stability metrics
+
+#### Storage & Filesystem
+- `/disk-usage` - Analyze space consumption (critical for SD cards)
+- `/filesystem-health` - Check filesystem integrity
+- `/cleanup-filesystem` - Free up space safely
+
+#### Networking
+- `/network-health` - Network configuration and connectivity
+- `/check-lan-connectivity` - Verify local network access
+- `/port-check` - Analyze listening services
+
+#### Service Management
+- `/check-services` - systemd service status
+- `/docker-health` - Docker environment health (if using Docker)
+- `/deployment-list` - Analyze all deployments
+
+#### Security
+- `/security-audit` - Comprehensive security check
+- `/firewall-check` - Firewall configuration review
+- `/certificate-check` - SSL/TLS certificate status
+
+#### Monitoring & Logs
+- `/analyze-logs` - System and service log examination
+- `/boot-time` - Boot performance analysis
+- `/check-logs-noteworthy` - General log review
+
+#### Hardware Specific
+- `/gpu-status` - GPU status (if applicable)
+- `/benchmark-hardware` - Performance benchmarking
+- `/document-distro` - Distribution documentation
+
+### Specialized Agents (10 total)
+
+Agents handle complex multi-step tasks:
+
+- **docker-troubleshooter** - Docker issue diagnosis
+- **backup-manager** - Backup operations and troubleshooting
+- **log-analyzer** - Pattern detection in logs
+- **service-monitor** - Service management and troubleshooting
+- **security-auditor** - Vulnerability identification
+- **performance-optimizer** - Resource optimization for SBCs
+- **deployment-manager** - Manage containerized services
+- **storage-manager** - Storage and filesystem management
+- **server-documentarian** - Generate documentation
+- **tunnel-manager** - Cloudflare Tunnel management (if used)
+
+---
+
+## Common SBC Use Cases
+
+This template is optimized for typical SBC applications:
+
+### Home Automation & IoT
+- Home Assistant, OpenHAB
+- Sensor networks and monitoring
+- Smart home integration
+
+### Network Services
+- Pi-hole DNS ad blocking
+- VPN servers (WireGuard, OpenVPN)
+- Network monitoring (Prometheus, Grafana)
+- DHCP/DNS servers
+
+### Media & Entertainment
+- Plex, Jellyfin, Kodi media servers
+- Music streaming (Subsonic, Airsonic)
+- Digital signage
+- Game emulation (RetroPie)
+
+### Development & DevOps
+- CI/CD runners (Gitea, Jenkins)
+- Docker host for microservices
+- Testing environments
+- Development platforms
+
+### Utility Services
+- File servers (Samba, NFS)
+- Print servers (CUPS)
+- Backup solutions
+- Web hosting
+- Database servers
+
+---
 
 ## Directory Structure
 
-- `.claude/` - Claude Code configuration and commands
-- `context/` - Server context documentation (distro info, configuration)
-- `hw-profile/` - Hardware and GPU benchmark reports
+```
+Claude-Code-SBC-Template/
+├── .claude/
+│   ├── agents/          # Specialized task agents
+│   └── commands/        # Slash commands
+│       ├── sbc-init.md  # Initialization wizard ⭐
+│       ├── general/     # General system commands
+│       ├── docker/      # Container management
+│       ├── networking/  # Network operations
+│       └── ...
+├── context/             # Generated configuration docs
+├── hw-profile/          # Hardware profile data
+├── CLAUDE.md           # Main AI assistant context
+├── sync-to-home.sh     # Deploy to ~/
+├── sync-to-home-and-root.sh  # Deploy system-wide
+└── README.md           # This file
+```
 
-## Use Case
+---
 
-Ideal for Ubuntu servers running:
-- Docker containerized services
-- Automated backup operations
-- Local network services
-- Development/testing environments
+## Deployment Options Explained
 
-## Security Note
+### Option A: `sync-to-home.sh` (Recommended)
 
-This template is designed for home lab and development servers. Adjust permissions and security settings appropriately for your environment.
+Deploys Claude Code configuration to your home directory:
+
+```bash
+./sync-to-home.sh
+```
+
+**Creates:**
+- `~/CLAUDE.md` - Main configuration
+- `~/.claude/` - Commands and agents
+- `~/hw-profile/` - Symlink to repository
+
+**Best for:**
+- Single-user SBCs
+- Personal projects
+- Standard deployments
+
+**No sudo required** ✅
+
+### Option B: `sync-to-home-and-root.sh` (Advanced)
+
+Deploys to both home directory AND filesystem root:
+
+```bash
+./sync-to-home-and-root.sh
+```
+
+**Creates:**
+- Everything from Option A, plus:
+- `/CLAUDE.md` - System-wide configuration
+- `/.claude/` - System-level commands
+- `/hw-profile/` - System-level symlink
+
+**Best for:**
+- Multi-user environments
+- Running Claude Code with sudo
+- System-level operations
+
+**Requires sudo** ⚠️
+
+---
+
+## SBC-Specific Features
+
+### Resource Awareness
+- Monitors temperature to prevent throttling
+- Tracks memory carefully on low-RAM systems
+- SD card write minimization strategies
+- Swap optimization recommendations
+
+### Power Management
+- Undervoltage detection (Raspberry Pi)
+- Power consumption monitoring
+- Graceful shutdown procedures
+- Battery/solar power considerations
+
+### Storage Optimization
+- SD card health monitoring
+- Log rotation configuration
+- tmpfs for high-write directories
+- External storage integration
+
+### Cooling & Thermal Management
+- Temperature monitoring and alerts
+- Throttling detection
+- Cooling solution recommendations
+- Safe overclocking guidance (where applicable)
+
+### GPIO & Hardware
+- GPIO pin usage documentation
+- I2C, SPI, UART interface tracking
+- Sensor integration support
+- HAT compatibility notes
+
+---
+
+## After Initialization
+
+Once `/sbc-init` completes, you'll have:
+
+### Generated Documentation
+- **context/sbc-config.md** - Complete configuration
+- **context/network-map.md** - Network topology
+- **context/services-inventory.md** - Running services
+- **hw-profile/sbc-specs.md** - Detailed hardware specs
+- **hw-profile/temperature-baselines.md** - Normal temps
+- **hw-profile/performance-baselines.md** - Performance metrics
+
+### Helper Scripts
+Created in `~/sbc-scripts/`:
+- `temp-check.sh` - Quick temperature check
+- `resource-status.sh` - System status at a glance
+- `service-status.sh` - All services status
+- `backup-trigger.sh` - Manual backup (if configured)
+
+### Customized Commands
+Only the slash commands relevant to your setup will be recommended for use.
+
+---
+
+## Updating Configuration
+
+### Re-running Initialization
+To reconfigure completely:
+```bash
+claude
+/sbc-init
+```
+
+### Manual Updates
+Edit files in the repository, then re-sync:
+```bash
+cd ~/Claude-Code-SBC-Template
+# Edit CLAUDE.md or .claude/commands as needed
+./sync-to-home.sh  # Redeploy changes
+```
+
+### Pulling Template Updates
+```bash
+cd ~/Claude-Code-SBC-Template
+git pull origin main
+./sync-to-home.sh  # Deploy updated files
+```
+
+---
+
+## Security Considerations
+
+This template follows SBC security best practices:
+
+- ✅ Encourages SSH key authentication
+- ✅ Recommends firewall configuration (ufw)
+- ✅ Suggests fail2ban for SSH protection
+- ✅ Promotes minimal service exposure
+- ✅ Regular security updates
+- ✅ Principle of least privilege
+
+**Important:** Change default passwords immediately after deploying any SBC!
+
+---
+
+## Troubleshooting
+
+### Commands Not Showing Up
+
+Ensure you've run the sync script:
+```bash
+./sync-to-home.sh
+```
+
+Then restart Claude Code.
+
+### Initialization Not Working
+
+Make sure you're running the latest Claude Code CLI:
+```bash
+claude --version
+```
+
+### Hardware Detection Issues
+
+Some SBC models may need additional packages:
+```bash
+sudo apt update
+sudo apt install -y lshw dmidecode inxi
+```
+
+---
+
+## Contributing
+
+This is a template repository designed to be forked and customized. However, improvements to the base template are welcome:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your improvements
+4. Submit a pull request
+
+**Focus areas for contributions:**
+- Additional SBC platform support
+- New slash commands for common SBC tasks
+- Improved hardware detection
+- Better resource optimization strategies
+
+---
+
+## License
+
+This template is released under the MIT License. See LICENSE file for details.
+
+You are free to:
+- Use for personal or commercial projects
+- Modify and customize
+- Share and redistribute
+
+---
+
+## Related Projects
+
+- [Claude Code](https://github.com/anthropics/claude-code) - Official Claude Code CLI
+- [Claude Code Projects Index](https://github.com/danielrosehill/Claude-Code-Repos-Index) - Collection of Claude Code projects
+
+---
+
+## Support & Community
+
+- **Issues:** Report bugs or request features via GitHub Issues
+- **Discussions:** Share your SBC setups and ask questions in Discussions
+- **Documentation:** Full Claude Code documentation at [docs.claude.com](https://docs.claude.com)
+
+---
+
+## Version History
+
+### v1.0.0 - Initial SBC Template Release
+- SBC-focused CLAUDE.md with generic hardware context
+- `/sbc-init` automatic configuration wizard
+- 38 slash commands adapted for SBC use
+- 10 specialized agents for SBC administration
+- Automatic hardware profiling
+- Resource-aware monitoring and optimization
+
+---
+
+## Author
+
+Created as a template for the Claude Code community.
+
+**Based on:** Claude Server Manager Template
+**Adapted for:** Single Board Computer management
+**Optimized for:** Resource-constrained ARM-based systems
+
+---
+
+**Start managing your SBC with AI assistance today!**
+
+Run `/sbc-init` after deployment and let Claude Code customize everything for your specific hardware and use case.
